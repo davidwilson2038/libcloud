@@ -985,6 +985,29 @@ class AzureNodeDriver(NodeDriver):
 
         self.raise_for_response(response, 202)
 
+    def ex_destroy_storage_service(self, ex_storage_service):
+        """
+        Destroy storage service. Storage service must not have any active
+        blobs. Sometimes Azure likes to hold onto volumes after they are
+        deleted for an inordinate amount of time, so sleep before calling
+        this method after volume deletion.
+
+        :param ex_storage_service: Name of storage service.
+        :type ex_storage_service: string.
+
+        :param tries: Number of times to attempt deletion of service
+        :type tries: int.
+
+        :rtype: ``bool``
+        """
+
+        response = self._perform_storage_service_delete(
+            self._get_storage_service_path(ex_storage_service)
+        )
+        self.raise_for_response(response, 200)
+
+        return True
+
     """
     Functions not implemented
     """
@@ -1036,6 +1059,17 @@ class AzureNodeDriver(NodeDriver):
         return response
 
     def _perform_cloud_service_delete(self, path):
+        request = AzureHTTPRequest()
+        request.method = 'DELETE'
+        request.host = AZURE_SERVICE_MANAGEMENT_HOST
+        request.path = path
+        request.path, request.query = self._update_request_uri_query(request)
+        request.headers = self._update_management_header(request)
+        response = self._perform_request(request)
+
+        return response
+
+    def _perform_storage_service_delete(self, path):
         request = AzureHTTPRequest()
         request.method = 'DELETE'
         request.host = AZURE_SERVICE_MANAGEMENT_HOST
