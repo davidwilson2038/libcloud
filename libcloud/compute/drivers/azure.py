@@ -986,7 +986,7 @@ class AzureNodeDriver(NodeDriver):
 
     def ex_create_storage_service(self, name, location,
                                   description=None, affinity_group=None,
-                                  extended_properties):
+                                  extended_properties=None):
         """
         Create an azure storage service.
 
