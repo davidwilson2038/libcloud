@@ -2024,12 +2024,11 @@ class AzureXmlSerializer(object):
 
     @staticmethod
     def create_storage_service_to_xml(service_name,
-                                     label,
-                                     description,
-                                     location,
-                                     affinity_group,
-                                     GeoReplicationEnabled=True,
-                                     extended_properties=None):
+                                      label,
+                                      description,
+                                      location,
+                                      affinity_group,
+                                      extended_properties=None):
 
         return AzureXmlSerializer.doc_from_data(
             'CreateStorageServiceInput',
