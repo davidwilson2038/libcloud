@@ -903,7 +903,6 @@ class AzureNodeDriver(NodeDriver):
 
         :rtype: ``bool``
         """
-        # TODO: add check to ensure all nodes have been deleted
         response = self._perform_cloud_service_delete(
             self._get_hosted_service_path(name)
         )
@@ -985,7 +984,9 @@ class AzureNodeDriver(NodeDriver):
 
         self.raise_for_response(response, 202)
 
-    def ex_create_storage_service(self, name, location, affinity_group=None):
+    def ex_create_storage_service(self, name, location,
+                                  description=None, affinity_group=None,
+                                  extended_properties):
         """
         Create an azure storage service.
 
@@ -995,25 +996,33 @@ class AzureNodeDriver(NodeDriver):
         :param      location: Standard azure location string
         :type       location: ``str``
 
-        :param      affinity_group: Azure affinity group.
+        :param      description: (Optional) Description of storage service.
+        :type       description: ``str``
+
+        :param      affinity_group: (Optional) Azure affinity group.
         :type       affinity_group: ``str``
+
+        :param      extended_properties: (Optional) Additional configuration
+                                         options support by Azure.
+        :type       extended_properties: ``dict``
 
         :rtype: ``bool``
         """
 
-        # Check if name of account is available
-        if not self._is_storage_service_unique(service_name=name):
-            return False
+        response = self._perform_storage_service_create(
+            self._get_storage_service_path(),
+            AzureXmlSerializer.create_storage_service_to_xml(
+                service_name=name,
+                label=self._encode_base64(name),
+                description=description,
+                location=location,
+                affinity_group=affinity_group,
+                extended_properties=extended_properties
+            )
+        )
 
-        # Create storage service, either set location or affinity group
-        if affinity_group:
-            self._create_storage_account(is_affinity_group=True,
-                                         service_name=name,
-                                         location=location)
-        else:
-            self._create_storage_account(is_affinity_group=False,
-                                         service_name=name,
-                                         location=location)
+        self.raise_for_response(response, 201)
+
         return True
 
     def ex_destroy_storage_service(self, ex_storage_service_name):
@@ -1094,6 +1103,18 @@ class AzureNodeDriver(NodeDriver):
         request.method = 'DELETE'
         request.host = AZURE_SERVICE_MANAGEMENT_HOST
         request.path = path
+        request.path, request.query = self._update_request_uri_query(request)
+        request.headers = self._update_management_header(request)
+        response = self._perform_request(request)
+
+        return response
+
+    def _perform_storage_service_create(self, path, data):
+        request = AzureHTTPRequest()
+        request.method = 'POST'
+        request.host = AZURE_SERVICE_MANAGEMENT_HOST
+        request.path = path
+        request.body = data
         request.path, request.query = self._update_request_uri_query(request)
         request.headers = self._update_management_header(request)
         response = self._perform_request(request)
@@ -1971,10 +1992,42 @@ class AzureXmlSerializer(object):
                                      label,
                                      description,
                                      location,
-                                     affinity_group,
-                                     extended_properties):
+                                     affinity_group=None,
+                                     extended_properties=None):
+        if affinity_group:
+            return AzureXmlSerializer.doc_from_data(
+                'CreateHostedService',
+                [
+                    ('ServiceName', service_name),
+                    ('Label', label),
+                    ('Description', description),
+                    ('AffinityGroup', affinity_group),
+                ],
+                extended_properties
+            )
+
         return AzureXmlSerializer.doc_from_data(
             'CreateHostedService',
+            [
+                ('ServiceName', service_name),
+                ('Label', label),
+                ('Description', description),
+                ('Location', location),
+            ],
+            extended_properties
+        )
+
+    @staticmethod
+    def create_storage_service_to_xml(service_name,
+                                     label,
+                                     description,
+                                     location,
+                                     affinity_group,
+                                     GeoReplicationEnabled=True,
+                                     extended_properties=None):
+
+        return AzureXmlSerializer.doc_from_data(
+            'CreateStorageServiceInput',
             [
                 ('ServiceName', service_name),
                 ('Label', label),
@@ -3390,7 +3443,6 @@ class AvailabilityResponse(WindowsAzureData):
 
     def __init__(self):
         self.result = False
-
 
 class SubscriptionCertificate(WindowsAzureData):
 
