@@ -306,12 +306,12 @@ class AzureNodeDriverTests(LibcloudTestCase):
             )
 
     def test_ex_destroy_storage_service(self):
-        result = self.driver.ex_destroy_storage_service(ex_storage_service_name="testdss123")
+        result = self.driver.ex_destroy_storage_service(name="testdss123")
         self.assertTrue(result)
 
     def test_ex_destroy_storage_service_service_does_not_exist(self):
         with self.assertRaises(LibcloudError):
-            self.driver.ex_destroy_storage_service(ex_storage_service_name="dss123")
+            self.driver.ex_destroy_storage_service(name="dss123")
 
     def test_create_node_and_deployment_one_node(self):
         kwargs = {
