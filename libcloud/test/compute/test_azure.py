@@ -530,7 +530,7 @@ class AzureMockHttp(MockHttp):
     def _3761b98b_673d_526c_8d55_fee918758e6e_services_storageservices(self, method, url, body, headers):
         # request url is the same irrespective of serviceName, only way to differentiate
         if "<ServiceName>testdss123</ServiceName>" in body:
-            return (httplib.CREATED, body, headers, httplib.responses[httplib.ACCEPTED])
+            return (httplib.ACCEPTED, body, headers, httplib.responses[httplib.ACCEPTED])
         elif "<ServiceName>dss123</ServiceName>" in body:
             return (httplib.CONFLICT, body, headers, httplib.responses[httplib.CONFLICT])
 
