@@ -1021,7 +1021,12 @@ class AzureNodeDriver(NodeDriver):
             )
         )
 
-        self.raise_for_response(response, 201)
+        self.raise_for_response(response, 202)
+
+        self._ex_complete_async_azure_operation(
+            response,
+            "create_storage_account"
+        )
 
         return True
 
