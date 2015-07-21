@@ -294,6 +294,17 @@ class AzureNodeDriverTests(LibcloudTestCase):
         with self.assertRaises(LibcloudError):
             self.driver.ex_destroy_cloud_service(name="testdc1234")
 
+    def test_ex_create_storage_service(self):
+        result = self.driver.ex_create_storage_service(name="testdss123", location="East US")
+        self.assertTrue(result)
+
+    def test_ex_create_storage_service_service_exists(self):
+        with self.assertRaises(LibcloudError):
+            self.driver.ex_create_storage_service(
+                name="dss123",
+                location="East US"
+            )
+
     def test_ex_destroy_storage_service(self):
         result = self.driver.ex_destroy_storage_service(ex_storage_service_name="testdss123")
         self.assertTrue(result)
@@ -515,6 +526,13 @@ class AzureMockHttp(MockHttp):
 
     def _3761b98b_673d_526c_8d55_fee918758e6e_services_hostedservices_testdc123(self, method, url, body, headers):
         return (httplib.OK, body, headers, httplib.responses[httplib.OK])
+
+    def _3761b98b_673d_526c_8d55_fee918758e6e_services_storageservices(self, method, url, body, headers):
+        # request url is the same irrespective of serviceName, only way to differentiate
+        if "<ServiceName>testdss123</ServiceName>" in body:
+            return (httplib.CREATED, body, headers, httplib.responses[httplib.CREATED])
+        elif "<ServiceName>dss123</ServiceName>" in body:
+            return (httplib.CONFLICT, body, headers, httplib.responses[httplib.CONFLICT])
 
     def _3761b98b_673d_526c_8d55_fee918758e6e_services_storageservices_testdss123(self, method, url, body, headers):
         return (httplib.OK, body, headers, httplib.responses[httplib.OK])
