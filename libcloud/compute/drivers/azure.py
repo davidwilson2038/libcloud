@@ -3448,6 +3448,7 @@ class AvailabilityResponse(WindowsAzureData):
     def __init__(self):
         self.result = False
 
+
 class SubscriptionCertificate(WindowsAzureData):
 
     def __init__(self):
