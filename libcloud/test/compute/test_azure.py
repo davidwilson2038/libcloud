@@ -295,7 +295,8 @@ class AzureNodeDriverTests(LibcloudTestCase):
             self.driver.ex_destroy_cloud_service(name="testdc1234")
 
     def test_ex_destroy_storage_service(self):
-        pass
+        result = self.driver.ex_destroy_storage_service(ex_storage_service_name="testdss123")
+        self.assertTrue(result)
 
     def test_ex_destroy_storage_service_service_does_not_exist(self):
         with self.assertRaises(LibcloudError):
@@ -513,6 +514,9 @@ class AzureMockHttp(MockHttp):
             return (httplib.CONFLICT, body, headers, httplib.responses[httplib.CONFLICT])
 
     def _3761b98b_673d_526c_8d55_fee918758e6e_services_hostedservices_testdc123(self, method, url, body, headers):
+        return (httplib.OK, body, headers, httplib.responses[httplib.OK])
+
+    def _3761b98b_673d_526c_8d55_fee918758e6e_services_storageservices_testdss123(self, method, url, body, headers):
         return (httplib.OK, body, headers, httplib.responses[httplib.OK])
 
     def _3761b98b_673d_526c_8d55_fee918758e6e_services_storageservices_dss123(self, method, url, body, headers):
