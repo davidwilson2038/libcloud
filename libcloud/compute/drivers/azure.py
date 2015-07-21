@@ -985,6 +985,42 @@ class AzureNodeDriver(NodeDriver):
 
         self.raise_for_response(response, 202)
 
+    def ex_create_storage_service(self, name, location, description=None,
+                                  extended_properties=None):
+        """
+        Create an azure storage service.
+
+        :param      name: Name of the service to create
+        :type       name: ``str``
+
+        :param      location: Standard azure location string
+        :type       location: ``str``
+
+        :param      description: Optional description
+        :type       description: ``str``
+
+        :param      extended_properties: Optional extended_properties
+        :type       extended_properties: ``dict``
+
+        :rtype: ``bool``
+        """
+
+        response = self._perform_cloud_service_create(
+            self._get_hosted_service_path(),
+            AzureXmlSerializer.create_hosted_service_to_xml(
+                name,
+                self._encode_base64(name),
+                description,
+                location,
+                None,
+                extended_properties
+            )
+        )
+
+        self.raise_for_response(response, 201)
+
+        return True
+
     def ex_destroy_storage_service(self, ex_storage_service_name):
         """
         Destroy storage service. Storage service must not have any active
@@ -1944,6 +1980,25 @@ class AzureXmlSerializer(object):
                                      extended_properties):
         return AzureXmlSerializer.doc_from_data(
             'CreateHostedService',
+            [
+                ('ServiceName', service_name),
+                ('Label', label),
+                ('Description', description),
+                ('Location', location),
+                ('AffinityGroup', affinity_group)
+            ],
+            extended_properties
+        )
+
+    @staticmethod
+    def create_storage_service_to_xml(service_name,
+                                     label,
+                                     description,
+                                     location,
+                                     affinity_group,
+                                     extended_properties):
+        return AzureXmlSerializer.doc_from_data(
+            'CreateStorageServiceInput',
             [
                 ('ServiceName', service_name),
                 ('Label', label),
