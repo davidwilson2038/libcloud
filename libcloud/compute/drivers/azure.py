@@ -2305,9 +2305,9 @@ class AzureXmlSerializer(object):
                 )
                 AzureXmlSerializer.data_to_xml([('Path', key.path)], kpair)
 
-        if configuration.user_data is not None:
+        if configuration.custom_data is not None:
             AzureXmlSerializer.data_to_xml(
-                [('CustomData', configuration.user_data)],
+                [('CustomData', configuration.custom_data)],
                 xml
             )
 
