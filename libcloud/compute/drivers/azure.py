@@ -579,10 +579,6 @@ class AzureNodeDriver(NodeDriver):
         auth = self._get_and_check_auth(auth)
         password = auth.password
 
-        # Check for custom data
-        custom_data = None
-        if 'custom_data' in kwargs:
-            custom_data = kwargs['custom_data']
         if not isinstance(size, NodeSize):
             raise ValueError('Size must be an instance of NodeSize')
 
@@ -667,8 +663,7 @@ class AzureNodeDriver(NodeDriver):
                 name,
                 ex_admin_user_id,
                 password,
-                False,
-                custom_data
+                False
             )
 
         network_config.input_endpoints.items.append(endpoint)
@@ -2305,12 +2300,6 @@ class AzureXmlSerializer(object):
                 )
                 AzureXmlSerializer.data_to_xml([('Path', key.path)], kpair)
 
-        if configuration.custom_data is not None:
-            AzureXmlSerializer.data_to_xml(
-                [('CustomData', configuration.custom_data)],
-                xml
-            )
-
         return xml
 
     @staticmethod
@@ -2792,8 +2781,7 @@ class LinuxConfigurationSet(WindowsAzureData):
                  host_name=None,
                  user_name=None,
                  user_password=None,
-                 disable_ssh_password_authentication=None,
-                 custom_data=None):
+                 disable_ssh_password_authentication=None):
         self.configuration_set_type = 'LinuxProvisioningConfiguration'
         self.host_name = host_name
         self.user_name = user_name
@@ -2801,7 +2789,6 @@ class LinuxConfigurationSet(WindowsAzureData):
         self.disable_ssh_password_authentication = \
             disable_ssh_password_authentication
         self.ssh = SSH()
-        self.custom_data = custom_data
 
 
 class WindowsConfigurationSet(WindowsAzureData):
